@@ -107,8 +107,11 @@ export const run = async (client: any, database: any, args: Interaction[]) => {
 				case "act-endwarmup":
 					serverEventEmitter.emit("sendCommand", "mp_warmup_end");
 					return;
-				case "act-removebots":
-					serverEventEmitter.emit("sendCommand", "kick_bot");
+				case "act-removebots": //jank!!!
+					const kickTs = "kick_bot T ; ".repeat(128);
+					const kickCTs = "kick_bot CT ; ".repeat(128);
+					const full = `${kickTs}${kickCTs}`.slice(0, -3);
+					serverEventEmitter.emit("sendCommand", full);
 					return;
 				default:
 					break;
