@@ -91,6 +91,7 @@ export const LaunchServer = (launchData: ServerLaunchData): Promise<ChildProcess
 			console.log("Server closed; resetting exported variables");
 			serverActive = false;
 			serverChildProcess = null;
+			playersInGame = [];
 			serverLock = {
 				locked: false,
 				owner: 0
