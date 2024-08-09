@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, CommandInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteractionOptionResolver } from "discord.js";
-import { serverActive, serverChildProcess } from "../utils/DedicatedServer.js";
+import { serverActive, serverChildProcess, serverEventEmitter } from "../utils/DedicatedServer.js";
 import { exec } from "child_process";
 
 export const data = new SlashCommandBuilder()
@@ -34,12 +34,12 @@ export const run = async (client: any, database: any, interaction: CommandIntera
 		return;
 	}
 
-	serverChildProcess.kill("SIGTERM");
+	serverEventEmitter.emit("sendCommand", "quit");
 
 	interaction.editReply({ embeds: [
 		new EmbedBuilder()
-			.setTitle(`Sent term signal to server!`)
-			.setDescription(`*Action executed by <@${interaction.user.id}>*`)
+			.setTitle(`Requested server to stop`)
+			.setDescription(`If the server doesn't quit or is frozen, re-run this command with the \`force\` option set to \`true\`\n*Action executed by <@${interaction.user.id}>*`)
 			.setColor("#0099ff")
 	] });
 };
