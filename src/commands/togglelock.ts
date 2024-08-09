@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, CommandInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import { ChangeLockState, serverLock } from "../utils/DedicatedServer.js";
+import { ChangeLockState, serverActive, serverLock } from "../utils/DedicatedServer.js";
 
 export const data = new SlashCommandBuilder()
 	.setName("togglelock")
@@ -9,6 +9,16 @@ export const timeoutLength: number = 1000;
 
 export const run = async (client: any, database: any, interaction: CommandInteraction, args: any) => {
 	await interaction.deferReply();
+
+	if (!serverActive) {
+		await interaction.editReply({ embeds: [
+			new EmbedBuilder()
+				.setTitle("No server to toggle lock")
+				.setDescription("You will need to start one with `/launchserver` before you can run this command!")
+				.setColor("#f54e4e")
+		] });
+		return;
+	}
 
 	if (interaction.user.id !== "1133911326327066695" && (interaction.user.id !== serverLock.owner.toString() && serverLock.locked)) {
 		await interaction.editReply({ embeds: [

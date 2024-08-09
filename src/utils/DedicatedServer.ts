@@ -88,8 +88,13 @@ export const LaunchServer = (launchData: ServerLaunchData): Promise<ChildProcess
 			}
 		});
 		serverChildProcess.once("exit", (code: any) => {
-			console.log("Server closed; resetting serverActive to false");
+			console.log("Server closed; resetting exported variables");
 			serverActive = false;
+			serverChildProcess = null;
+			serverLock = {
+				locked: false,
+				owner: 0
+			};
 		});
 		serverEventEmitter.on("sendCommand", (command: string) => {
 			console.log(`Sending command to server: ${command}`);
