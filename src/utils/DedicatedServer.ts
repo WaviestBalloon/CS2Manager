@@ -32,6 +32,7 @@ export const LaunchServer = (launchData: ServerLaunchData): Promise<ServerRanDat
 	if (launchData.extraparams) params.push(launchData.extraparams);
 	if (launchData.password) params.push(`+sv_password "${launchData.password}"`);
 	params.push(`+sv_parallel_sendsnapshot "3"`);
+	params.push(`+sv_setsteamaccount "${process.env.STEAMWEBAPIKEY}"`);
 
 	const command = `./cs2 ${params.join(" ")}`;
 	console.log(`Running command: ${command}`);
@@ -109,7 +110,7 @@ export const LaunchServer = (launchData: ServerLaunchData): Promise<ServerRanDat
 
 		resolve({
 			process: serverChildProcess,
-			ranCommand: command
+			ranCommand: command.replace(process.env.STEAMWEBAPIKEY, "REDACTED")
 		});
 	});
 }
