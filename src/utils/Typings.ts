@@ -1,4 +1,4 @@
-import { Attachment, Collection } from "discord.js";
+import { ChildProcessWithoutNullStreams } from "node:child_process";
 
 export interface ServerLaunchData {
 	map: string;
@@ -7,38 +7,10 @@ export interface ServerLaunchData {
 	vac: boolean;
 	workshopmap: number | null;
 	extraparams: string;
+	password: string | null;
 }
 
-export interface OutOfContextData {
-	[id: string]: {
-		count: number;
-		messages: {
-			[messageid: string]: {
-				content: string;
-				ev: Collection<string, Attachment>;
-				by: number | string;
-				timestamp: number;
-				dtimestamp: number;
-				victims: string[];
-			}
-		}
-	}
-}
-export interface OutOfContextQuote {
-	content: string;
-	ev: Collection<string, Attachment>;
-	by: number | string;
-	timestamp: number;
-	dtimestamp: number;
-	victims: string[];
-}
-
-export interface AcknowledgementMessageData {
-	[messageId: string]: {
-		timestamp: number;
-		locationData: {
-			guildId: string;
-			channelId: string;
-		}
-	}
+export interface ServerRanData {
+	process: ChildProcessWithoutNullStreams;
+	ranCommand: string;
 }

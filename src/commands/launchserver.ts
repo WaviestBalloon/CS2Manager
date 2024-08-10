@@ -21,6 +21,7 @@ export const data = new SlashCommandBuilder()
 	.addIntegerOption((option) => option.setName("slots").setDescription("How many players can the server allow to join").setRequired(false))
 	.addBooleanOption((option) => option.setName("vac").setDescription("Disables Valve Anti-Cheat, allows for restricted accounts to join the server").setRequired(false))
 	.addStringOption((option) => option.setName("extraparams").setDescription("Extra startup paramaters").setRequired(false))
+	.addStringOption((option) => option.setName("password").setDescription("Set a server password").setRequired(false))
 	.addBooleanOption((option) => option.setName("claim").setDescription("Instantly take ownership of server actions and commands").setRequired(false));
 
 export const timeoutLength: number = 20000;
@@ -35,6 +36,7 @@ export const run = async (client: any, database: any, interaction: CommandIntera
 	const vac = options?.getBoolean("vac") || true;
 	const workshopmap = options?.getInteger("workshopmap") || null;
 	const extraparams = options?.getString("extraparams") || null;
+	const password = options?.getString("password") || null;
 	const takeClaim = options?.getBoolean("claim") || null;
 
 	if (serverActive) {
@@ -100,7 +102,9 @@ export const run = async (client: any, database: any, interaction: CommandIntera
 		vac,
 		workshopmap,
 		extraparams,
+		password,
 	});
+	const serverProcessChild = serverProcess.process;
 
 	function update() {
 		let playerList = "";
@@ -113,11 +117,12 @@ export const run = async (client: any, database: any, interaction: CommandIntera
 				.setTitle(`Running on ${map} with ${slots} slots`)
 				.setDescription(`Gamemode: \`${gamemode}\`\nVAC: \`${vac ? "Enabled" : "Disabled"}\`\nWorkshop Map: \`${workshopmap ? workshopmap : "None"}\`\nExtra Params: \`${extraparams ? extraparams : "None"}\`\n\n> *Players:*\n${playerList}\n> *Enter the following in console to connect:*\n> \`connect ${process.env.IPADDRESS}:27015\``)
 				.setColor("#8ded5c")
+				.setFooter({ text: serverProcess.ranCommand })
 				//@ts-ignore
 		], components: [ buttons, actionButtons ] });
 	}
 
-	serverProcess.stdout.on("data", (data: any) => {
+	serverProcessChild.stdout.on("data", (data: any) => {
 		if (data.includes("Spawn Server")) {
 			ChangeState(`Running on ${gamemode} ${map}... (0/${slots} slots)`);
 
@@ -131,7 +136,7 @@ export const run = async (client: any, database: any, interaction: CommandIntera
 		update();
 	});
 
-	serverProcess.once("close", (code: any) => {
+	serverProcessChild.once("close", (code: any) => {
 		console.log(`child process exited with code ${code}`);
 		eventListener.removeAllListeners();
 

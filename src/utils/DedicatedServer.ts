@@ -1,5 +1,5 @@
 import { ChildProcessWithoutNullStreams, exec, spawn } from "child_process";
-import { ServerLaunchData } from "./Typings.js";
+import { ServerLaunchData, ServerRanData } from "./Typings.js";
 import { existsSync } from "fs";
 import EventEmitter from "events";
 
@@ -15,18 +15,23 @@ export let serverLock: {
 export let playersInGame: string[] = [];
 export let serverEventEmitter: EventEmitter = new EventEmitter();
 
-export const LaunchServer = (launchData: ServerLaunchData): Promise<ChildProcessWithoutNullStreams> => {
+export const LaunchServer = (launchData: ServerLaunchData): Promise<ServerRanData> => {
 	console.log("Launching server with data: ", launchData);
 	serverActive = true;
 
 	const params: string[] = [];
 	params.push("-dedicated");
 	if (launchData.vac == false) params.push(`-insecure`);
-	if (launchData.slots) params.push(`-maxplayers ${launchData.slots}`);
+	if (launchData.slots) {
+		params.push(`-maxplayers ${launchData.slots}`);
+		params.push(`-maxplayers_override ${launchData.slots}`);
+	}
 	if (launchData.gamemode) params.push(`+game_alias ${launchData.gamemode}`);
 	if (launchData.map) params.push(`+map ${launchData.map}`);
 	if (launchData.workshopmap) params.push(`+host_workshop_map ${launchData.workshopmap}`);
 	if (launchData.extraparams) params.push(launchData.extraparams);
+	if (launchData.password) params.push(`+sv_password "${launchData.password}"`);
+	params.push(`+sv_parallel_sendsnapshot "3"`);
 
 	const command = `./cs2 ${params.join(" ")}`;
 	console.log(`Running command: ${command}`);
@@ -102,7 +107,10 @@ export const LaunchServer = (launchData: ServerLaunchData): Promise<ChildProcess
 			serverChildProcess.stdin.write(command + "\n");
 		});
 
-		resolve(serverChildProcess);
+		resolve({
+			process: serverChildProcess,
+			ranCommand: command
+		});
 	});
 }
 
