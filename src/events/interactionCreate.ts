@@ -97,7 +97,7 @@ export const run = async (client: any, database: any, args: Interaction[]) => {
 			if (!serverActive) return;
 			if (serverLock.locked) {
 				if (interaction.user.id !== "1133911326327066695" && interaction.user.id !== serverLock.owner.toString()) {
-					await interaction.editReply({ embeds: [
+					await interaction.reply({ embeds: [
 						new EmbedBuilder()
 							.setTitle(`Unable to run command`)
 							.setDescription(`Only <@${serverLock.owner}> can use this command as they have claimed the server!`)
