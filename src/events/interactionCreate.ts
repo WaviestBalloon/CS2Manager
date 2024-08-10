@@ -1,7 +1,7 @@
 import { EmbedBuilder, Interaction } from "discord.js";
 import fs from "node:fs";
 import { makeSlashLink, makeTimestamp } from "../utils/Response.js";
-import { serverActive, serverEventEmitter } from "../utils/DedicatedServer.js";
+import { serverActive, serverEventEmitter, serverLock } from "../utils/DedicatedServer.js";
 
 let ratelimits: { userId: string, command: string, timeout: EpochTimeStamp }[] = [];
 let commands = new Map();
@@ -95,6 +95,18 @@ export const run = async (client: any, database: any, args: Interaction[]) => {
 
 		if (buttonId.includes("act-")) {
 			if (!serverActive) return;
+			if (serverLock.locked) {
+				if (interaction.user.id !== "1133911326327066695" && interaction.user.id !== serverLock.owner.toString()) {
+					await interaction.editReply({ embeds: [
+						new EmbedBuilder()
+							.setTitle(`Unable to run command`)
+							.setDescription(`Only <@${serverLock.owner}> can use this command as they have claimed the server!`)
+							.setColor("#f54e4e")
+					], components: [] });
+					return;
+				}
+			}
+
 			interaction.deferUpdate();
 
 			switch (buttonId) {
