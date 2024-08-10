@@ -95,17 +95,16 @@ export const LaunchServer = (launchData: ServerLaunchData): Promise<ServerRanDat
 		});
 		serverChildProcess.once("exit", (code: any) => {
 			console.log("Server closed; resetting exported variables");
-			serverActive = false;
-			serverChildProcess = null;
-			playersInGame = [];
-			serverLock = {
-				locked: false,
-				owner: 0
-			};
+			ResetInternalState();
 		});
 		serverEventEmitter.on("sendCommand", (command: string) => {
 			console.log(`Sending command to server: ${command}`);
 			serverChildProcess.stdin.write(command + "\n");
+
+			if (command == "quit") {
+				console.log("Server quit command sent; resetting exported variables");
+				ResetInternalState();
+			}
 		});
 
 		resolve({
@@ -121,3 +120,13 @@ export const ChangeLockState = (state: boolean, userOwner: number) => {
 		owner: userOwner
 	};
 }
+
+export const ResetInternalState = () => {
+	serverActive = false;
+	serverChildProcess = null;
+	playersInGame = [];
+	serverLock = {
+		locked: false,
+		owner: 0
+	};
+};
